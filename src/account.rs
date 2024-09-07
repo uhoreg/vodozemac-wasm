@@ -78,12 +78,12 @@ impl Account {
         Ok(self.inner.pickle().encrypt(pickle_key))
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn ed25519_key(&self) -> String {
         self.inner.ed25519_key().to_base64()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn curve25519_key(&self) -> String {
         self.inner.curve25519_key().to_base64()
     }
@@ -92,12 +92,12 @@ impl Account {
         self.inner.sign(message).to_base64()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn max_number_of_one_time_keys(&self) -> usize {
         self.inner.max_number_of_one_time_keys()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn one_time_keys(&self) -> Result<JsValue, JsValue> {
         let keys: HashMap<_, _> = self
             .inner
@@ -113,7 +113,7 @@ impl Account {
         self.inner.generate_one_time_keys(count);
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn fallback_key(&self) -> Result<JsValue, JsValue> {
         let keys: HashMap<String, String> = self
             .inner

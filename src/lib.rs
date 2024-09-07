@@ -15,7 +15,7 @@ fn error_to_js(error: impl std::error::Error) -> JsError {
     JsError::new(&error.to_string())
 }
 
-#[wasm_bindgen(getter_with_clone, setter)]
+#[wasm_bindgen(getter_with_clone)]
 pub struct OlmMessage {
     pub ciphertext: String,
     pub message_type: usize,
