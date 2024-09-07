@@ -12,12 +12,7 @@ jobs:
         # Windows is missing from this list as wasm-pack didn't want to work
         # on it. We should try to add it back at some point in the future.
         os: [ubuntu-latest, macos-latest]
-        node: ['16']
-        include:
-          - os: ubuntu-latest
-            node: '14'
-          - os: ubuntu-latest
-            node: '12'
+        node: ['22', '20', '18']
     runs-on: "${{ matrix.os }}"
     steps:
       - uses: actions/checkout@v2
