@@ -1,3 +1,4 @@
+use vodozemac::megolm::SessionConfig;
 use wasm_bindgen::prelude::*;
 
 use crate::error_to_js;
@@ -14,7 +15,7 @@ impl GroupSession {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            inner: vodozemac::megolm::GroupSession::new(),
+            inner: vodozemac::megolm::GroupSession::new(SessionConfig::version_1()),
         }
     }
 
@@ -76,7 +77,7 @@ impl InboundGroupSession {
         let key = SessionKey::from_base64(session_key).map_err(error_to_js)?;
 
         Ok(Self {
-            inner: vodozemac::megolm::InboundGroupSession::new(&key),
+            inner: vodozemac::megolm::InboundGroupSession::new(&key, SessionConfig::version_1()),
         })
     }
 
@@ -84,7 +85,7 @@ impl InboundGroupSession {
         let key = ExportedSessionKey::from_base64(session_key).map_err(error_to_js)?;
 
         Ok(Self {
-            inner: vodozemac::megolm::InboundGroupSession::import(&key),
+            inner: vodozemac::megolm::InboundGroupSession::import(&key, SessionConfig::version_1()),
         })
     }
 
@@ -107,7 +108,7 @@ impl InboundGroupSession {
         let ret = self.inner.decrypt(&message).map_err(error_to_js)?;
 
         Ok(DecryptedMessage {
-            plaintext: ret.plaintext,
+            plaintext: String::from_utf8(ret.plaintext).map_err(error_to_js)?,
             message_index: ret.message_index,
         })
     }

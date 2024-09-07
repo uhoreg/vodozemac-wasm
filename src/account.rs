@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use vodozemac::olm::SessionConfig;
 use wasm_bindgen::prelude::*;
 
 use crate::error_to_js;
@@ -30,14 +31,15 @@ impl InboundCreationResult {
     }
 }
 
-impl From<vodozemac::olm::InboundCreationResult> for InboundCreationResult {
-    fn from(result: vodozemac::olm::InboundCreationResult) -> Self {
-        Self {
+impl TryFrom<vodozemac::olm::InboundCreationResult> for InboundCreationResult {
+    type Error = JsValue;
+    fn try_from(result: vodozemac::olm::InboundCreationResult) -> Result<Self, Self::Error> {
+        Ok(Self {
             session: Session {
                 inner: result.session,
             },
-            plaintext: result.plaintext,
-        }
+            plaintext: String::from_utf8(result.plaintext).map_err(error_to_js)?,
+        })
     }
 }
 
@@ -108,7 +110,7 @@ impl Account {
     }
 
     pub fn generate_one_time_keys(&mut self, count: usize) {
-        self.inner.generate_one_time_keys(count)
+        self.inner.generate_one_time_keys(count);
     }
 
     #[wasm_bindgen(method, getter)]
@@ -124,7 +126,7 @@ impl Account {
     }
 
     pub fn generate_fallback_key(&mut self) {
-        self.inner.generate_fallback_key()
+        self.inner.generate_fallback_key();
     }
 
     pub fn mark_keys_as_published(&mut self) {
@@ -140,9 +142,11 @@ impl Account {
             vodozemac::Curve25519PublicKey::from_base64(identity_key).map_err(error_to_js)?;
         let one_time_key =
             vodozemac::Curve25519PublicKey::from_base64(one_time_key).map_err(error_to_js)?;
-        let session = self
-            .inner
-            .create_outbound_session(identity_key, one_time_key);
+        let session = self.inner.create_outbound_session(
+            SessionConfig::version_1(),
+            identity_key,
+            one_time_key,
+        );
 
         Ok(Session { inner: session })
     }
@@ -164,7 +168,7 @@ impl Account {
                 .inner
                 .create_inbound_session(identity_key, &message)
                 .map_err(error_to_js)?
-                .into())
+                .try_into()?)
         } else {
             Err(JsError::new("Invalid message type, expected a pre-key message").into())
         }

@@ -75,6 +75,9 @@ impl Session {
             vodozemac::olm::OlmMessage::from_parts(message.message_type, &message.ciphertext)
                 .map_err(error_to_js)?;
 
-        Ok(self.inner.decrypt(&message).map_err(error_to_js)?)
+        Ok(
+            String::from_utf8(self.inner.decrypt(&message).map_err(error_to_js)?)
+                .map_err(error_to_js)?,
+        )
     }
 }
